@@ -4,22 +4,13 @@ using UnityEngine.InputSystem;
 
 public class CubeFactory : MonoBehaviour
 {
-    private Stopwatch stopwatch;
-    public int cooldown = 2000;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        stopwatch = new Stopwatch();
-        stopwatch.Start();
-    }
+    public IsCollidingChecker isCollidingChecker;
 
-    // Update is called once per frame
     void Update()
     {
-         if (stopwatch.Elapsed.Milliseconds >= cooldown ) {
+         if (isCollidingChecker.isColliding) {
             CreateCube();
-            stopwatch.Restart();
         }
     }
 

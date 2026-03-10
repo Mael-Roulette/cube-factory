@@ -60,8 +60,6 @@ public class CameraControllerMouseRotates : MonoBehaviour
         {
             // Crouch down (move camera up/down)
             Key.LeftCtrl,
-            // Jump (move camera up)
-            Key.Space,
             // Move forward
             Key.W,
             // Move backward
@@ -84,14 +82,6 @@ public class CameraControllerMouseRotates : MonoBehaviour
         InputAction[Key.LeftCtrl].Add((state) =>
         {
             Vector3 camPos = maincamTrans.position;
-            camPos.y = state ? .6f: camYpos;
-            maincamTrans.position = camPos;
-        });
-        //  Jump
-        InputAction[Key.Space].Add((state) =>
-        {
-            Vector3 camPos = maincamTrans.position;
-            // TODO : Revoir le saut
             camPos.y = state ? .6f: camYpos;
             maincamTrans.position = camPos;
         });
