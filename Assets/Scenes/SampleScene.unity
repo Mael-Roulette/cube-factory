@@ -1328,9 +1328,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 594170116}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ae8442d33528564f87e35d04be87c4e, type: 3}
+  m_Script: {fileID: 11500000, guid: 9cb628b8eea794247971b76b8bb65fd1, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: '::'
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceNavigate
+  direction: 0
 --- !u!1001 &628185488
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1403,6 +1404,7 @@ GameObject:
   - component: {fileID: 654591157}
   - component: {fileID: 654591156}
   - component: {fileID: 654591155}
+  - component: {fileID: 654591159}
   m_Layer: 0
   m_Name: prev
   m_TagString: Untagged
@@ -1503,6 +1505,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1992068850}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &654591159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 654591154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9cb628b8eea794247971b76b8bb65fd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceNavigate
+  direction: 1
 --- !u!1001 &703451343
 PrefabInstance:
   m_ObjectHideFlags: 0
