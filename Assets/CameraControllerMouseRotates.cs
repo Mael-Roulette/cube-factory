@@ -19,8 +19,12 @@ public class CameraControllerMouseRotates : MonoBehaviour
 
     // Set this as the camera's transform in the editor
     public Transform maincamTrans;
+
+    private Rigidbody _rb;
+    private Transform _bodyTrans;
+    private Vector3 _moveInput = Vector3.zero;
     
-    public bool allReleased
+    public bool AllReleased
     {
         get
         {
@@ -36,22 +40,13 @@ public class CameraControllerMouseRotates : MonoBehaviour
     {
         _instance = this;
 
+        _bodyTrans = maincamTrans != null ? maincamTrans.parent : transform.parent;
+        _rb = _bodyTrans.GetComponent<Rigidbody>();
+
         // Si "maincamTrans" n'a pas ?t? assign? dans l'?diteur on suppose que ce script est attach? ? la cam?ra elle-m?me.
         if (maincamTrans ==  null)
         {
             maincamTrans = transform;
-        }
-
-        maincamTrans.position = new Vector3(0, camYpos, 0);
-        maincamTrans.rotation = Quaternion.identity;
-        maincamTrans.Rotate(Vector3.right, 20);
-        
-        camPosWin = new Vector3[maxCamWin];
-        camRotWin = new Vector3[maxCamWin];
-        for (int i = 0; i < maxCamWin; i++)
-        {
-            camPosWin[i].y = camYpos;
-            // camRotWin[i].x = -10f;
         }
 
         // You may need to adapt this keys to work with AZERTY keyboards
@@ -81,58 +76,14 @@ public class CameraControllerMouseRotates : MonoBehaviour
         //  Crouch
         InputAction[Key.LeftCtrl].Add((state) =>
         {
-            Vector3 camPos = maincamTrans.position;
-            camPos.y = state ? .6f: camYpos;
-            maincamTrans.position = camPos;
+            Vector3 bodyPos = _bodyTrans.position;
+            bodyPos.y = state ? .6f : camYpos;
+            _bodyTrans.position = bodyPos;
         });
-        //  Move forward
-        InputAction[Key.W].Add(state =>
-        {
-            if (state)
-            {
-                Vector3 oldPos = maincamTrans.position;
-                float Ypos = oldPos.y; // Keep Y position that can bee .6f or camYpos
-                Vector3 newPos = oldPos + maincamTrans.forward * camTransSpeed * Time.deltaTime;
-                newPos.y = Ypos;
-                maincamTrans.position = newPos;
-            }
-        });
-        //  Move backward
-        InputAction[Key.S].Add(state =>
-        {
-            if (state)
-            {
-                Vector3 oldPos = maincamTrans.position;
-                float Ypos = oldPos.y;
-                Vector3 newPos = oldPos - maincamTrans.forward * camTransSpeed * Time.deltaTime;
-                newPos.y = Ypos;
-                maincamTrans.position = newPos;
-            }
-        });
-        //  Strafe left
-        InputAction[Key.A].Add(state =>
-        {
-            if (state)
-            {
-                Vector3 oldPos = maincamTrans.position;
-                float Ypos = oldPos.y;
-                Vector3 newPos = oldPos - maincamTrans.right * camTransSpeed * Time.deltaTime;
-                newPos.y = Ypos;
-                maincamTrans.position = newPos;
-            }
-        });
-        //  Strafe right
-        InputAction[Key.D].Add(state =>
-        {
-            if (state)
-            {
-                Vector3 oldPos = maincamTrans.position;
-                float Ypos = oldPos.y;
-                Vector3 newPos = oldPos + maincamTrans.right * camTransSpeed * Time.deltaTime;
-                newPos.y = Ypos;
-                maincamTrans.position = newPos;
-            }
-        });
+        InputAction[Key.W].Add(state => _moveInput.z = state ? 1 : 0);
+        InputAction[Key.S].Add(state => _moveInput.z = state ? -1 : 0);
+        InputAction[Key.A].Add(state => _moveInput.x = state ? -1 : 0);
+        InputAction[Key.D].Add(state => _moveInput.x = state ? 1 : 0);
         
         Cursor.lockState = CursorLockMode.Locked;
     }
@@ -147,53 +98,40 @@ public class CameraControllerMouseRotates : MonoBehaviour
         }
         return outvec / maxCamWin;
     }
-    private int iCamWin = 0;
-    private int maxCamWin = 4;
-    private Vector3[] camPosWin;
-    private Vector3[] camRotWin;
+    private readonly int maxCamWin = 4;
+    private readonly Vector3[] camPosWin;
+    private readonly Vector3[] camRotWin;
 
     private Vector2 mousePos = Vector2.zero;
 
     private void Update()
     {
-        // Mouse movement -> camera rotation
         mousePos.x += Mouse.current.delta.x.ReadValue() * camRotSpeed * 2 * Time.deltaTime;
         mousePos.y -= Mouse.current.delta.y.ReadValue() * camRotSpeed * Time.deltaTime;
         mousePos.y = Mathf.Clamp(mousePos.y, -75, 75);
-        Vector3 newCamRot = new Vector3(mousePos.y, mousePos.x, 0f);
-        
+
+        maincamTrans.localRotation = Quaternion.Euler(mousePos.y, 0, 0);
+
         foreach (Key keycode in KeyCodesUsed)
         {
-            // bool hasChanged = false;
             bool isDown = Keyboard.current[keycode].isPressed;
             bool isUp = Keyboard.current[keycode].wasReleasedThisFrame;
-
             if (!isDown && !isUp) continue;
-
             isPressed[keycode] = isDown;
-
-            // Continue to invoke attached action(s) as long as the key is pressed
             if (InputAction.ContainsKey(keycode))
-            {
                 foreach (inputCallback func in InputAction[keycode])
-                {
                     func(isPressed[keycode]);
-                }
-            }
         }
+    }
 
-        Vector3 newCamPos = maincamTrans.position;
-        // Force user to stay within a square centered at the origin (x: 0, z: 0)
-        //newCamPos.x = Mathf.Clamp(newCamPos.x, -1.85f, 1.85f);
-        //newCamPos.z = Mathf.Clamp(newCamPos.z, -2f, 2f);
-        
-        iCamWin = (++iCamWin) % maxCamWin;
+    private void FixedUpdate()
+    {
+        // Rotation via Rigidbody pour ne pas conflicuer avec la physique
+        _rb.MoveRotation(Quaternion.Euler(0, mousePos.x, 0));
 
-        maincamTrans.position = (getAverageVec3(camPosWin) + newCamPos) / 2;
-        maincamTrans.eulerAngles = (getAverageVec3(camRotWin) - new Vector3(90f, 0, 0) + newCamRot) / 2;
-
-        camPosWin[iCamWin] = newCamPos;
-        camRotWin[iCamWin] = newCamRot + new Vector3(90f, 0, 0);
+        if (_moveInput == Vector3.zero) return;
+        Vector3 move = (_bodyTrans.forward * _moveInput.z + _bodyTrans.right * _moveInput.x) * camTransSpeed;
+        _rb.MovePosition(_rb.position + move * Time.fixedDeltaTime);
     }
     
     private void OnEnable()
@@ -215,8 +153,10 @@ public class CameraControllerMouseRotates : MonoBehaviour
         if (!mat)
         {
             var shader = Shader.Find("Hidden/Internal-Colored");
-            mat = new Material(shader);
-            mat.hideFlags = HideFlags.HideAndDontSave;
+            mat = new Material(shader)
+            {
+                hideFlags = HideFlags.HideAndDontSave
+            };
             // Set blend mode to invert destination colors.
             mat.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.OneMinusDstColor);
             mat.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
