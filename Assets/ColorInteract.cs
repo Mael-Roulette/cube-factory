@@ -1,11 +1,13 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.EventSystems;
 
-public class ColorInteract : MonoBehaviour
+public class ColorInteract : MonoBehaviour, IPointerDownHandler
 {
-    public Color[] colors;
+    private static ColorInteract _activeButton = null;
+    public static Color selectedColor { get; private set; } = Color.white;
+
+    public Color[] colors; // [0] = inactif, [1] = actif
     private Material _material;
-    private bool _isHolding = false;
 
     void Start()
     {
@@ -13,8 +15,15 @@ public class ColorInteract : MonoBehaviour
         _material.color = colors[0];
     }
 
-    void Update()
+    public void OnPointerDown(PointerEventData pointerEventData)
     {
-                    _material.color = (_material.color == colors[0]) ? colors[1] : colors[0];
+        if (_activeButton != null && _activeButton != this)
+            _activeButton._material.color = _activeButton.colors[0];
+
+        _activeButton = this;
+        _material.color = colors[1];
+        selectedColor = colors[0]; // Mémorise la couleur choisie
     }
+
+    public bool IsActive => _activeButton == this;
 }
