@@ -1,9 +1,9 @@
 using UnityEngine;
 
-public class choiceInteract : MonoBehaviour
+public class ChoiceInteract : MonoBehaviour
 {
     private static int _selectedIndex = 0;
-    public static int selectedIndex => _selectedIndex;
+    public static int SelectedIndex => _selectedIndex;
 
     public Transform modelParent;
 
@@ -39,16 +39,10 @@ public class choiceInteract : MonoBehaviour
         if (_previewInstance != null)
             Destroy(_previewInstance);
 
-        // Cloner le modèle sélectionné sur le plateau
+        // Cloner le modèle sur le plateau
         GameObject source = modelParent.GetChild(_selectedIndex).gameObject;
-        _previewInstance = Instantiate(source, previewParent);
-        _previewInstance.transform.localPosition = Vector3.zero;
-        _previewInstance.transform.localRotation = Quaternion.identity;
-        _previewInstance.transform.localScale = source.transform.localScale;
-
-        // Désactiver les colliders sur le visuel
-        foreach (var col in _previewInstance.GetComponents<Collider>())
-            col.enabled = false;
+        _previewInstance = Instantiate(source);
+        _previewInstance.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
     }
 
     public GameObject CreateCube()

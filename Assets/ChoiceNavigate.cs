@@ -8,7 +8,7 @@ public class ChoiceNavigate : MonoBehaviour, IPointerDownHandler
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        choiceInteract choice = FindFirstObjectByType<choiceInteract>();
+        ChoiceInteract choice = FindFirstObjectByType<ChoiceInteract>();
         if (choice == null) return;
 
         if (direction == Direction.Next)
