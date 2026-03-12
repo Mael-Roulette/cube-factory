@@ -27,11 +27,13 @@ public class CameraControllerMouseRotates : MonoBehaviour
     private CapsuleCollider _capsule;
     private float _standingHeight;
     private readonly float _crouchHeight = 1.0f;
+    private readonly float _jumpHeight = 2.5f;
     private float _standingCenterY;
 
     private float _camTargetLocalY;
     private float _standingCamY;
     private float _crouchCamY = -0.6f;
+    private float _jumpCamY = 1f;
 
     public bool AllReleased
     {
@@ -58,10 +60,7 @@ public class CameraControllerMouseRotates : MonoBehaviour
         _standingCenterY = _capsule.center.y;
 
         // Si "maincamTrans" n'a pas ?t? assign? dans l'?diteur on suppose que ce script est attach? ? la cam?ra elle-m?me.
-        if (maincamTrans ==  null)
-        {
-            maincamTrans = transform;
-        }
+        maincamTrans ??= transform;
 
         // You may need to adapt this keys to work with AZERTY keyboards
         //  You can replace Q with A and Z with W, or change the key set up to direction arrows (e.g., "Key.UpArrow")
@@ -69,6 +68,8 @@ public class CameraControllerMouseRotates : MonoBehaviour
         {
             // Crouch down (move camera up/down)
             Key.LeftCtrl,
+            // Jump 
+            Key.Space,
             // Move forward
             Key.W,
             // Move backward
@@ -106,6 +107,44 @@ public class CameraControllerMouseRotates : MonoBehaviour
             {
                 // Debout : cast pour vérifier qu'il y a de la place au-dessus
                 float castDist = (_standingHeight - _crouchHeight) / 2f;
+                bool blocked = Physics.SphereCast(
+                    _bodyTrans.position,
+                    _capsule.radius * 0.9f,
+                    Vector3.up,
+                    out _,
+                    castDist
+                );
+
+                if (!blocked)
+                {
+                    _capsule.height = _standingHeight;
+                    _capsule.center = new Vector3(
+                        _capsule.center.x,
+                        _standingCenterY,
+                        _capsule.center.z
+                    );
+                }
+            }
+        });
+        //  Jumb
+        InputAction[Key.Space].Add((state) =>
+        {
+            _camTargetLocalY = state ? _jumpCamY : _standingCamY;
+
+            if (state)
+            {
+                // Accroupi : réduit la hauteur du collider vers le bas
+                _capsule.height = _jumpHeight;
+                _capsule.center = new Vector3(
+                    _capsule.center.x,
+                    _standingCenterY - (_standingHeight + _jumpHeight) / 2f,
+                    _capsule.center.z
+                );
+            }
+            else
+            {
+                // Debout : cast pour vérifier qu'il y a de la place au-dessus
+                float castDist = (_standingHeight - _jumpHeight) / 2f;
                 bool blocked = Physics.SphereCast(
                     _bodyTrans.position,
                     _capsule.radius * 0.9f,
