@@ -12,6 +12,8 @@ public class ChoiceInteract : MonoBehaviour
 
     private GameObject _previewInstance;
 
+    public static GameObject SelectedModel;
+
     private void Start()
     {
         RefreshPreview();
@@ -42,18 +44,22 @@ public class ChoiceInteract : MonoBehaviour
         // Cloner le modèle sur le plateau
         GameObject source = modelParent.GetChild(_selectedIndex).gameObject;
         _previewInstance = Instantiate(source);
-        _previewInstance.transform.localPosition = new Vector3(0.0f, 1.0f, 0.0f);
+        _previewInstance.transform.localPosition = new Vector3(0.2f, 1.3f, -1.8f);
+
+        SelectedModel = _previewInstance;
+
+
     }
 
     public GameObject CreateCube()
     {
         if (modelParent == null) return null;
 
-        GameObject source = modelParent.GetChild(_selectedIndex).gameObject;
+        GameObject source = SelectedModel;
         GameObject cubeGo = Instantiate(source);
 
         cubeGo.transform.position = new Vector3(-1.5f, 1.3f, -1.8f);
-        cubeGo.GetComponent<MeshRenderer>().material.color = ColorInteract.selectedColor;
+        cubeGo.GetComponent<MeshRenderer>().material.color = ColorInteract.SelectedColor;
         cubeGo.AddComponent<Moving>();
 
         Rigidbody cubeRB = cubeGo.AddComponent<Rigidbody>();

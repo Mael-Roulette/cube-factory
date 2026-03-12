@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 public class ColorInteract : MonoBehaviour, IPointerDownHandler
 {
     private static ColorInteract _activeButton = null;
-    public static Color selectedColor { get; private set; } = Color.white;
+    public static Color SelectedColor { get; private set; } = Color.white;
 
     public Color[] colors; // [0] = inactif, [1] = actif
     private Material _material;
@@ -22,7 +22,7 @@ public class ColorInteract : MonoBehaviour, IPointerDownHandler
 
         _activeButton = this;
         _material.color = colors[1];
-        selectedColor = colors[0]; // Mémorise la couleur choisie
+        SelectedColor = colors[0]; // Mémorise la couleur choisie
     }
 
     public bool IsActive => _activeButton == this;

@@ -24,6 +24,15 @@ public class CameraControllerMouseRotates : MonoBehaviour
     private Transform _bodyTrans;
     private Vector3 _moveInput = Vector3.zero;
     
+    private CapsuleCollider _capsule;
+    private float _standingHeight;
+    private readonly float _crouchHeight = 1.0f;
+    private float _standingCenterY;
+
+    private float _camTargetLocalY;
+    private float _standingCamY;
+    private float _crouchCamY = -0.6f;
+
     public bool AllReleased
     {
         get
@@ -41,7 +50,12 @@ public class CameraControllerMouseRotates : MonoBehaviour
         _instance = this;
 
         _bodyTrans = maincamTrans != null ? maincamTrans.parent : transform.parent;
+
         _rb = _bodyTrans.GetComponent<Rigidbody>();
+
+        _capsule = _bodyTrans.GetComponent<CapsuleCollider>();
+        _standingHeight = _capsule.height;
+        _standingCenterY = _capsule.center.y;
 
         // Si "maincamTrans" n'a pas ?t? assign? dans l'?diteur on suppose que ce script est attach? ? la cam?ra elle-m?me.
         if (maincamTrans ==  null)
@@ -76,9 +90,40 @@ public class CameraControllerMouseRotates : MonoBehaviour
         //  Crouch
         InputAction[Key.LeftCtrl].Add((state) =>
         {
-            Vector3 bodyPos = _bodyTrans.position;
-            bodyPos.y = state ? .6f : camYpos;
-            _bodyTrans.position = bodyPos;
+            _camTargetLocalY = state ? _crouchCamY : _standingCamY;
+
+            if (state)
+            {
+                // Accroupi : réduit la hauteur du collider vers le bas
+                _capsule.height = _crouchHeight;
+                _capsule.center = new Vector3(
+                    _capsule.center.x,
+                    _standingCenterY - (_standingHeight - _crouchHeight) / 2f,
+                    _capsule.center.z
+                );
+            }
+            else
+            {
+                // Debout : cast pour vérifier qu'il y a de la place au-dessus
+                float castDist = (_standingHeight - _crouchHeight) / 2f;
+                bool blocked = Physics.SphereCast(
+                    _bodyTrans.position,
+                    _capsule.radius * 0.9f,
+                    Vector3.up,
+                    out _,
+                    castDist
+                );
+
+                if (!blocked)
+                {
+                    _capsule.height = _standingHeight;
+                    _capsule.center = new Vector3(
+                        _capsule.center.x,
+                        _standingCenterY,
+                        _capsule.center.z
+                    );
+                }
+            }
         });
         InputAction[Key.W].Add(state => _moveInput.z = state ? 1 : 0);
         InputAction[Key.S].Add(state => _moveInput.z = state ? -1 : 0);
@@ -86,6 +131,9 @@ public class CameraControllerMouseRotates : MonoBehaviour
         InputAction[Key.D].Add(state => _moveInput.x = state ? 1 : 0);
         
         Cursor.lockState = CursorLockMode.Locked;
+
+        _standingCamY = maincamTrans.localPosition.y;
+        _camTargetLocalY = _standingCamY;
     }
     
     // Smoother camera control with averaging window
@@ -111,6 +159,10 @@ public class CameraControllerMouseRotates : MonoBehaviour
         mousePos.y = Mathf.Clamp(mousePos.y, -75, 75);
 
         maincamTrans.localRotation = Quaternion.Euler(mousePos.y, 0, 0);
+
+        Vector3 camLocal = maincamTrans.localPosition;
+        camLocal.y = Mathf.Lerp(camLocal.y, _camTargetLocalY, Time.deltaTime * 10f);
+        maincamTrans.localPosition = camLocal;
 
         foreach (Key keycode in KeyCodesUsed)
         {

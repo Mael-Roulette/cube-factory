@@ -3851,7 +3851,6 @@ GameObject:
   - component: {fileID: 1599901994}
   - component: {fileID: 1599901993}
   - component: {fileID: 1599901992}
-  - component: {fileID: 1599901995}
   m_Layer: 0
   m_Name: create-text
   m_TagString: Untagged
@@ -4022,22 +4021,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 1, y: 0.5}
---- !u!114 &1599901995
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1599901991}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 879762112f1e27d4b8ad3d1f44a640fc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::IsCollidingChecker
-  isColliding: 0
-  colors:
-  - {r: 0.8867924, g: 0.7950655, b: 0.17150229, a: 0}
-  - {r: 0.6698113, g: 0.64146274, b: 0.4454877, a: 0}
 --- !u!1 &1610029995 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 95ccb87a05a44b9479f670c61b3e7291, type: 3}
@@ -4660,6 +4643,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1992068850}
+  - component: {fileID: 1992068851}
   m_Layer: 0
   m_Name: Selection
   m_TagString: Untagged
@@ -4695,6 +4679,20 @@ Transform:
   - {fileID: 1759736633}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1992068851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1992068849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ae8442d33528564f87e35d04be87c4e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::choiceInteract
+  modelParent: {fileID: 1371394713}
+  previewParent: {fileID: 1965349266}
 --- !u!1 &2017492000
 GameObject:
   m_ObjectHideFlags: 0
